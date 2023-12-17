@@ -1,3 +1,5 @@
 /target
 .cargo
 .env
+.idea
+.DS_Store
