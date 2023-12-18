@@ -1,10 +1,9 @@
-use std::net::TcpListener;
 use sqlx::postgres::PgPoolOptions;
+use std::net::TcpListener;
 
-use rusttest::startup::run;
 use rusttest::configuration::get_configuration;
+use rusttest::startup::run;
 use rusttest::telemetry::{get_subscriber, init_subscriber};
-
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -12,15 +11,16 @@ async fn main() -> Result<(), std::io::Error> {
     init_subscriber(subscriber);
 
     let configuration = get_configuration().expect("Failed to read configuration");
-    let connection_pool = PgPoolOptions::new()
-        .connect_lazy_with(configuration.database.with_db());
-    let address = format!("{}:{}", configuration.application.host, configuration.application.port);
+    let connection_pool = PgPoolOptions::new().connect_lazy_with(configuration.database.with_db());
+    let address = format!(
+        "{}:{}",
+        configuration.application.host, configuration.application.port
+    );
     let listener = TcpListener::bind(address)
         .unwrap_or_else(|_| panic!("Failed to bind port {}", configuration.application.port));
     run(listener, connection_pool)?.await?;
     Ok(())
 }
-
 
 // use actix_web::{get, web, App, HttpServer, HttpResponse, Responder, middleware::Logger};
 //
@@ -48,8 +48,6 @@ async fn main() -> Result<(), std::io::Error> {
 //     .await
 //     // println!("Hello, world!");
 // }
-
-
 
 // #[cfg(test)]
 // mod tests {
