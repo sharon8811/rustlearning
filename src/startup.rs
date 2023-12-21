@@ -10,6 +10,7 @@ pub fn run(listener: TcpListener, connection: PgPool) -> Result<Server, std::io:
     let connection = web::Data::new(connection);
     let server = HttpServer::new(move || {
         App::new()
+            // Middlewares are added using the `wrap` method on `App`
             .wrap(TracingLogger::default())
             .route("/health_check", web::get().to(health_check))
             .route("/subscriptions", web::post().to(subscribe))
