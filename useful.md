@@ -106,6 +106,11 @@ we can add the '@' in the end to choose the version and --features, for example:
 
 `cargo add tokio@1 --features macros,rt-multi-thread`
 
+Package to find unused dependencies:
+
+`cargo +nightly udeps`
+we might need to install nightly with `rustup install nightly`
+
 
 Testing
 -------
