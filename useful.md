@@ -137,3 +137,31 @@ Are located in each file with special macro
 `#[cfg(test)]`
 
 An embedded test module is part of the project, just hidden behind a configuration conditional check.
+
+
+Docker
+======
+
+When using `127.0.0.1` as our host in address - we are instructing our application to only accept connections coming from the same machine.\
+However, when firing a GET request to /health_check from the host machine, which is not seen as local
+by our Docker image, therefore triggering the Connection refused error we have just seen.
+We need to use `0.0.0.0` as host to instruct our application to accept connections from any network interface,
+not just the local one.\
+We should be careful though: using `0.0.0.0` significantly increases the “audience” of our application, with
+some security implications.\
+The best way forward is to make the host portion of our address configurable - we will keep using `127.0.0.1`
+for our local development and set it to `0.0.0.0` in our Docker images.
+
+
+Rust
+====
+
+panic in rust
+-------------
+
+If your Rust application panics in response to any user input, then the following should be true:
+your application has a bug, whether it be in a library or in the primary application code.
+
+Rust’s panics are not equivalent to exceptions in languages such as Python, C# or Java. Although Rust
+provides a few utilities to catch (some) panics, it is most definitely not the recommended approach and
+should be used sparingly.

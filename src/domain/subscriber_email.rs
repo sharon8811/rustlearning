@@ -36,6 +36,7 @@ mod tests {
     }
 
     #[quickcheck_macros::quickcheck]
+    // quickcheck calls prop in a loop with a configurable number of iterations (100 by default)
     fn valid_emails_are_parsed_successfully(valid_email: ValidEmailFixture) -> bool {
         SubscriberEmail::parse(valid_email.0).is_ok()
     }

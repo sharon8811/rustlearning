@@ -7,7 +7,7 @@ services:
     github:
       branch: main
       deploy_on_push: true
-      repo: sharont8811/rusttest
+      repo: sharon8811/rustlearning
     health_check:
       http_path: /health_check
     http_port: 8080
