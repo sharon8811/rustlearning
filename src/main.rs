@@ -1,24 +1,17 @@
-use sqlx::postgres::PgPoolOptions;
-use std::net::TcpListener;
-
 use rusttest::configuration::get_configuration;
-use rusttest::startup::run;
+use rusttest::startup::Application;
 use rusttest::telemetry::{get_subscriber, init_subscriber};
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
-    let subscriber = get_subscriber("rusttest".into(), "info".into(), std::io::stdout);
+    let subscriber = get_subscriber(
+        "rusttest".into(), "info".into(), std::io::stdout
+    );
     init_subscriber(subscriber);
 
     let configuration = get_configuration().expect("Failed to read configuration");
-    let connection_pool = PgPoolOptions::new().connect_lazy_with(configuration.database.with_db());
-    let address = format!(
-        "{}:{}",
-        configuration.application.host, configuration.application.port
-    );
-    let listener = TcpListener::bind(address)
-        .unwrap_or_else(|_| panic!("Failed to bind port {}", configuration.application.port));
-    run(listener, connection_pool)?.await?;
+    let application = Application::build(configuration).await?;
+    application.run_until_stopped().await?;
     Ok(())
 }
 
