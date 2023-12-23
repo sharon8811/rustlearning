@@ -5,6 +5,7 @@ use uuid::Uuid;
 use rusttest::configuration::{get_configuration, DatabaseSettings};
 use rusttest::telemetry::{get_subscriber, init_subscriber};
 use rusttest::startup::{Application, get_connection_pool};
+use wiremock::MockServer;
 
 
 static TRACING: Lazy<()> = Lazy::new(|| {
@@ -20,10 +21,10 @@ static TRACING: Lazy<()> = Lazy::new(|| {
     }
 });
 
-#[derive(Clone)]
 pub struct TestApp {
     pub address: String,
     pub db_pool: PgPool,
+    pub email_server: MockServer,
 }
 
 impl TestApp {
@@ -42,6 +43,7 @@ pub async fn spawn_app() -> TestApp {
     // The first time `initialize` is invoked the code in `TRACING` is executed.
     // All other invocations will instead skip execution.
     Lazy::force(&TRACING);
+    let email_server = MockServer::start().await;
 
     let configuration = {
         let mut c = get_configuration().expect("Failed to read configuration.");
@@ -51,6 +53,7 @@ pub async fn spawn_app() -> TestApp {
         // an OS scan for an available port which will then be bound to the application.
         // Use random OS port
         c.application.port = 0;
+        c.email_client.base_url = email_server.uri();
         c
     };
 
@@ -68,6 +71,7 @@ pub async fn spawn_app() -> TestApp {
     TestApp {
         address,
         db_pool: get_connection_pool(&configuration.database),
+        email_server,
     }
 
     // let listener = TcpListener::bind("127.0.0.1:0")
