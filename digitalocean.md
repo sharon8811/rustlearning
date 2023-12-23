@@ -18,3 +18,9 @@ To deploy the app from the `spec.yaml` file
 To see the status of the deployment and running application:
 
 `doctl apps list`
+
+
+To deploy a new version of the app we need to list apps with the 
+`doctl apps list` and use the app ID wit this command
+
+`doctl apps update APP-ID --spec=spec.yaml`
