@@ -15,6 +15,7 @@ name = "rusttest"
 [dependencies]
 actix-web = "4.4.0"
 anyhow = "1.0.76"
+base64 = { version = "0.21.5", features = [] }
 config = { version = "0.13.4", features = [] }
 chrono = {version = "0.4.31", default-features = false, features = ["clock"]}
 rand = { version = "0.8.5", features = ["std_rng"] }
