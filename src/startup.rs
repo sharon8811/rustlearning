@@ -9,7 +9,7 @@ use std::net::TcpListener;
 use secrecy::{ExposeSecret, Secret};
 use crate::configuration::{DatabaseSettings, Settings};
 use crate::routes::*;
-use crate::routes::{home, login_form, login};
+use crate::routes::{home, login_form, login, admin_dashboard};
 use crate::email_client::EmailClient;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
@@ -102,6 +102,7 @@ async fn run(
             .route("/subscriptions", web::post().to(subscribe))
             .route("/subscriptions/confirm", web::get().to(confirm))
             .route("/newsletters", web::post().to(publish_newsletter))
+            .route("/admin/dashboard", web::get().to(admin_dashboard))
             .app_data(db_pool.clone())
             .app_data(email_client.clone())
             .app_data(base_url.clone())
