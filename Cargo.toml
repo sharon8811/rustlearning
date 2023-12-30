@@ -16,6 +16,7 @@ name = "rusttest"
 actix-session = { version = "0.8.0", features = ["redis-rs-tls-session"] }
 actix-web = "4.4.0"
 actix-web-flash-messages = { version = "0.4.2", features = ["cookies"] }
+actix-web-lab = "0.20.1"
 anyhow = "1.0.76"
 argon2 = { version = "0.5.2", features = ["std"] }
 base64 = { version = "0.21.5", features = [] }
