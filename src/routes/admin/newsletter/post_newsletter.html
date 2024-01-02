@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Post Newsletter</title>
+</head>
+<body>
+    <form action="/admin/newsletters" method="post">
+        <label>Title
+            <input
+                    type="text"
+                    placeholder="Enter newsletter title"
+                    name="title"
+            >
+        </label>
+        <br>
+        <label>Html Content
+            <textarea name="html_content"></textarea>
+        </label>
+        <br>
+        <label>Text Content
+            <textarea name="text_content"></textarea>
+        </label>
+        <br>
+        <input type="hidden" name="idempotency_key" value="{idempotency_key}">
+        <button type="submit">Submit Newsletter</button>
+    </form>
+    <p><a href="/admin/dashboard">&lt;- Back</a></p>
+</body>
+</html>
