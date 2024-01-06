@@ -1,54 +1,19 @@
-use actix_web::http::header::ContentType;
-use actix_web::HttpResponse;
+use actix_web::{HttpResponse, HttpRequest, web};
 use actix_web_flash_messages::IncomingFlashMessages;
+use minijinja::context;
 use std::fmt::Write;
 
+use crate::jinja::JinjaAppState;
+
 pub async fn change_password_form(
+    req: HttpRequest,
     flush_messages: IncomingFlashMessages,
+    jinja_state: web::Data<JinjaAppState>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let mut msg_html = String::new();
     for m in flush_messages.iter() {
         writeln!(msg_html, "<p><i>{}</i></p>", m.content()).unwrap();
     }
 
-    Ok(HttpResponse::Ok().content_type(ContentType::html()).body(format!(
-        r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8">
-<title>Change Password</title>
-</head>
-<body>
-{msg_html}
-<form action="/admin/password" method="post">
-<label>Current password
-<input
-type="password"
-placeholder="Enter current password"
-name="current_password"
->
-</label>
-<br>
-<label>New password
-<input
-type="password"
-placeholder="Enter new password"
-name="new_password"
->
-</label>
-<br>
-<label>Confirm new password
-<input
-type="password"
-placeholder="Type the new password again"
-name="new_password_check"
->
-</label>
-<br>
-<button type="submit">Change password</button>
-</form>
-<p><a href="/admin/dashboard">&lt;- Back</a></p>
-</body>
-</html>"#
-    )))
+    Ok(jinja_state.render_template("reset_password.html", &req, context! {msg_html => msg_html}))
 }
