@@ -13,6 +13,7 @@ use crate::configuration::{DatabaseSettings, Settings};
 use crate::routes::*;
 use crate::routes::{home, login_form, login, admin_dashboard, change_password_form, change_password, log_out, send_fav_icon};
 use crate::email_client::EmailClient;
+use crate::jinja::JinjaAppState;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
 use tracing_actix_web::TracingLogger;
@@ -80,6 +81,7 @@ async fn run(
     let message_store = CookieMessageStore::builder(secret_key.clone()).build();
     let message_framework = FlashMessagesFramework::builder(message_store).build();
     let redis_store = RedisSessionStore::new(redis_uri.expose_secret()).await?;
+    let jinja_state = web::Data::new(JinjaAppState::create());
     let server = HttpServer::new(move || {
         App::new()
             // Middlewares are added using the `wrap` method on `App`
@@ -92,11 +94,15 @@ async fn run(
             .service(actix_files::Files::new("/static", ".").show_files_listing())
             .route("/favicon.ico", web::get().to(send_fav_icon))
             .route("/", web::get().to(home))
-            .route("/login", web::get().to(login_form))
-            .route("/login", web::post().to(login))
             .route("/health_check", web::get().to(health_check))
             .route("/subscriptions", web::post().to(subscribe))
             .route("/subscriptions/confirm", web::get().to(confirm))
+            .service(
+                web::resource("/login")
+                    .name("login")
+                    .route(web::get().to(login_form))
+                    .route(web::post().to(login))
+            )
             .service(
                 web::scope("/admin")
                     .wrap(from_fn(reject_anonymous_users))
@@ -111,6 +117,7 @@ async fn run(
             .app_data(email_client.clone())
             .app_data(base_url.clone())
             .app_data(web::Data::new(HmacSecret(hmac_secret.clone())))
+            .app_data(jinja_state.clone())
     })
     .listen(listener)?
     .run();
