@@ -1,41 +1,21 @@
+use crate::jinja::JinjaAppState;
 use crate::utils::e500;
-use actix_web::{web, HttpResponse};
-use actix_web::http::header::ContentType;
+use actix_web::{web, HttpResponse, HttpRequest};
 use anyhow::Context;
 use sqlx::PgPool;
 use uuid::Uuid;
 use crate::authentication::UserId;
+use minijinja::context;
 
 pub async fn admin_dashboard(
+    req: HttpRequest,
     pool: web::Data<PgPool>,
-    user_id: web::ReqData<UserId>
+    user_id: web::ReqData<UserId>,
+    jinja_state: web::Data<JinjaAppState>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let user_id = user_id.into_inner();
     let username = get_username(*user_id, &pool).await.map_err(e500)?;
-    Ok(HttpResponse::Ok()
-        .content_type(ContentType::html())
-        .body(format!(
-            r#"<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8">
-<title>Admin dashboard</title>
-</head>
-<body>
-<p>Welcome {username}!</p>
-<p>Available actions:</p>
-<ol>
-<li><a href="/admin/password">Change password</a></li>
-<li><a href="/admin/newsletters">Submit newsletter</a></li>
-<li>
-    <form name="logoutForm" action="/admin/logout" method="post">
-        <input type="submit" value="Logout">
-    </form>
-</li>
-</ol>
-</body>
-</html>"#,
-        )))
+    Ok(jinja_state.render_template("admin_dashboard.html", &req, context! {username => username}))
 }
 
 #[tracing::instrument(name = "Get username", skip(pool))]
