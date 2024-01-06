@@ -11,7 +11,7 @@ use secrecy::{ExposeSecret, Secret};
 use crate::authentication::reject_anonymous_users;
 use crate::configuration::{DatabaseSettings, Settings};
 use crate::routes::*;
-use crate::routes::{home, login_form, login, admin_dashboard, change_password_form, change_password, log_out};
+use crate::routes::{home, login_form, login, admin_dashboard, change_password_form, change_password, log_out, send_fav_icon};
 use crate::email_client::EmailClient;
 use sqlx::PgPool;
 use sqlx::postgres::PgPoolOptions;
@@ -89,6 +89,8 @@ async fn run(
                 secret_key.clone(),
             ))
             .wrap(TracingLogger::default())
+            .service(actix_files::Files::new("/static", ".").show_files_listing())
+            .route("/favicon.ico", web::get().to(send_fav_icon))
             .route("/", web::get().to(home))
             .route("/login", web::get().to(login_form))
             .route("/login", web::post().to(login))
